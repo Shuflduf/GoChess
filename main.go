@@ -1,27 +1,30 @@
 package main
 
 import (
-	"bytes"
-	_ "embed"
-	"image"
 	"image/color"
-	_ "image/png"
 	"log"
+	"strings"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
-//go:embed assets/pieces_atlas.png
-var textureData []byte
 
 type Game struct{}
 
 const margins = 45
+const startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 
 var darkColor = color.RGBA{149, 68, 35, 255}
 var brightColor = color.RGBA{220, 192, 144, 255}
-var texture *ebiten.Image
+var currentState [8][8]int8 // currentState[y][x]
+
+
+func SetupBoard() {
+  parts := strings.Split(startingFEN, "/")
+  for row, i := range parts {
+    
+  }
+}
 
 func (g *Game) Update() error {
 	return nil
@@ -46,12 +49,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
   // pieces
-  cropRect := image.Rect(0, 0, 45, 45)
   drawOptions := ebiten.DrawImageOptions{}
-  newScale := float64(gridSize) / 45.0
+  newScale := float64(gridSize) / float64(pieceSize)
   drawOptions.GeoM.Scale(newScale, newScale)
   drawOptions.GeoM.Translate(margins, margins)
-  screen.DrawImage(texture.SubImage(cropRect).(*ebiten.Image), &drawOptions)
+  screen.DrawImage(GetPieceFromFen('Q'), &drawOptions)
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
@@ -62,12 +64,7 @@ func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowTitle("Hello, World!")
-  img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(textureData))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	texture = img
+  load_texture()
 
 	if err := ebiten.RunGame(&Game{}); err != nil {
 		log.Fatal(err)
