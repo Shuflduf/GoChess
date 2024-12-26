@@ -8,6 +8,7 @@ import (
 	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 )
 
 type Game struct{}
@@ -45,6 +46,9 @@ func SetupBoard() {
 }
 
 func (g *Game) Update() error {
+  if inpututil.IsKeyJustPressed(ebiten.KeyF) {
+    ebiten.SetFullscreen(!ebiten.IsFullscreen())
+  }
 	return nil
 }
 
