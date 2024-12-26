@@ -6,6 +6,7 @@ import (
 	"image"
 	_ "image/png"
 	"log"
+	"math"
 	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,24 +19,33 @@ var textureData []byte
 var texture *ebiten.Image
 var pieceSize int
 var pieceMap = map[rune]int{
-	'k': 0,
-	'q': 1,
-	'b': 2,
-	'n': 3,
-	'r': 4,
-	'p': 5,
+	'k': 1,
+	'q': 2,
+	'b': 3,
+	'n': 4,
+	'r': 5,
+	'p': 6,
 }
 
 func GetPieceFromFen(r rune) *ebiten.Image {
 	index := pieceMap[unicode.ToLower(r)]
-	cropRect := image.Rect(index*pieceSize, 0, (index+1)*pieceSize, pieceSize)
-	if unicode.IsLower(r) {
+  sign := unicode.IsLower(r)
+  if sign {
+    index *= -1
+  }
+  return GetPieceFromIndex(index)
+}
+
+func GetPieceFromIndex(i int) *ebiten.Image {
+  absI := int(math.Abs(float64(i)))
+	cropRect := image.Rect((absI-1)*pieceSize, 0, absI*pieceSize, pieceSize)
+	if i < 0 {
 		cropRect = cropRect.Add(image.Point{0, pieceSize})
 	}
 	return texture.SubImage(cropRect).(*ebiten.Image)
 }
 
-func load_texture() {
+func LoadTexture() {
 	img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(textureData))
 	if err != nil {
 		log.Fatal(err)
