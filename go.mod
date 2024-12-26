@@ -1,4 +1,4 @@
-module shuflduf/GoChess
+module shuflduf.xyz/GoChess
 
 go 1.23.2
 
