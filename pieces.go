@@ -65,7 +65,10 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 					continue
 				}
 				if p.pos[0]+i >= 0 && p.pos[0]+i < 8 && p.pos[1]+j >= 0 && p.pos[1]+j < 8 {
-					valid = append(valid, [2]int{p.pos[0] + i, p.pos[1] + j})
+					target := [2]int{p.pos[0] + i, p.pos[1] + j}
+					if (GetPieceAt(target).pieceType == 0) || (GetPieceAt(target).pieceType > 0 != (p.pieceType > 0)) {
+						valid = append(valid, target)
+					}
 				}
 			}
 		}
@@ -79,10 +82,13 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 				}
 				for k := 1; k < 8; k++ {
 					if p.pos[0]+i*k >= 0 && p.pos[0]+i*k < 8 && p.pos[1]+j*k >= 0 && p.pos[1]+j*k < 8 {
-						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
 						if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType != 0 {
+							if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType > 0 != (p.pieceType > 0) {
+								valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
+							}
 							break
 						}
+						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
 					} else {
 						break
 					}
@@ -94,15 +100,18 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 	case 3:
 		for i := -1; i < 2; i++ {
 			for j := -1; j < 2; j++ {
-				if i == 0 && j == 0 {
+				if i == 0 || j == 0 {
 					continue
 				}
 				for k := 1; k < 8; k++ {
 					if p.pos[0]+i*k >= 0 && p.pos[0]+i*k < 8 && p.pos[1]+j*k >= 0 && p.pos[1]+j*k < 8 {
-						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
 						if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType != 0 {
+							if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType > 0 != (p.pieceType > 0) {
+								valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
+							}
 							break
 						}
+						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
 					} else {
 						break
 					}
@@ -118,7 +127,10 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 					continue
 				}
 				if p.pos[0]+i >= 0 && p.pos[0]+i < 8 && p.pos[1]+j >= 0 && p.pos[1]+j < 8 {
-					valid = append(valid, [2]int{p.pos[0] + i, p.pos[1] + j})
+					target := [2]int{p.pos[0] + i, p.pos[1] + j}
+					if (GetPieceAt(target).pieceType == 0) || (GetPieceAt(target).pieceType > 0 != (p.pieceType > 0)) {
+						valid = append(valid, target)
+					}
 				}
 			}
 		}
@@ -135,10 +147,13 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 						break
 					}
 					if p.pos[0]+i*k >= 0 && p.pos[0]+i*k < 8 && p.pos[1]+j*k >= 0 && p.pos[1]+j*k < 8 {
-						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
 						if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType != 0 {
+							if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType > 0 != (p.pieceType > 0) {
+								valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
+							}
 							break
 						}
+						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
 					} else {
 						break
 					}

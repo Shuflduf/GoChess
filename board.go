@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode"
@@ -22,6 +23,9 @@ func BoardImage() *ebiten.Image {
 			} else {
 				rect.Fill(darkColor)
 			}
+      if slices.Contains(validPositions, [2]int{x, y}) {
+        drawOptions.ColorScale.Scale(1, 1, 1, 0.2)
+      }
 			img.DrawImage(rect, &drawOptions)
 		}
 	}

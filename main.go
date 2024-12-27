@@ -14,13 +14,15 @@ type Game struct{}
 
 const margins = 45
 const startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
+
 var darkColor = color.RGBA{149, 68, 35, 255}
 var brightColor = color.RGBA{220, 192, 144, 255}
 
 var screenHeight int
 var screenWidth int
 var gridSize int
-var currentState [8][8]int     // currentState[y][x]
+var validPositions [][2]int
+var currentState [8][8]int        // currentState[y][x]
 var heldPiecePos = [2]int{-1, -1} // heldPiece{x, y}
 var whiteMove = true
 
@@ -35,6 +37,8 @@ func (g *Game) Update() error {
 			if targetPiece.pieceType != 0 {
 				if targetPiece.IsTurn() {
 					heldPiecePos = clickGridPos
+          heldPiece := GetPieceAt(heldPiecePos)
+          validPositions = heldPiece.ValidPositions()
 				}
 			}
 		}
@@ -48,9 +52,9 @@ func (g *Game) Update() error {
 				targetPiece := GetPieceAt(clickGridPos)
 				movingPiece := GetPieceAt(heldPiecePos)
 				var canCapture = targetPiece.pieceType == 0
-        if movingPiece == targetPiece {
-          canCapture = false
-        } else if movingPiece.pieceType > 0 {
+				if movingPiece == targetPiece {
+					canCapture = false
+				} else if movingPiece.pieceType > 0 {
 					if targetPiece.pieceType < 0 {
 						canCapture = true
 					}
@@ -59,19 +63,19 @@ func (g *Game) Update() error {
 						canCapture = true
 					}
 				}
-        validPos := movingPiece.ValidPositions()
-				if canCapture && slices.Contains(validPos, clickGridPos) {
-          whiteMove = !whiteMove
-          heldPiece := GetPieceAt(heldPiecePos)
+				if canCapture && slices.Contains(validPositions, clickGridPos) {
+					whiteMove = !whiteMove
+					heldPiece := GetPieceAt(heldPiecePos)
 					SetPieceAtTo(heldPiece.MovedTo(clickGridPos))
-          SetPieceAtTo(Piece{ 0, heldPiecePos })
-          // if king captured, reset
+					SetPieceAtTo(Piece{0, heldPiecePos})
+					// if king captured, reset
 					if int(math.Abs(float64(targetPiece.pieceType))) == 1 {
 						SetupBoard()
 					}
 				}
 			}
 			heldPiecePos = [2]int{-1, -1}
+      validPositions = [][2]int{}
 		}
 	}
 	return nil
@@ -79,11 +83,11 @@ func (g *Game) Update() error {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{70, 70, 70, 255})
-  opt := UIImageOptions()
-  screen.DrawImage(UIImage(), &opt)
+	opt := UIImageOptions()
+	screen.DrawImage(UIImage(), &opt)
 
-  opt = BoardImageOptions()
-  screen.DrawImage(BoardImage(), &opt)
+	opt = BoardImageOptions()
+	screen.DrawImage(BoardImage(), &opt)
 
 	// pieces
 	drawOptions := ebiten.DrawImageOptions{}
