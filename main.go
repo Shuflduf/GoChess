@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"log"
 	"math"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode"
@@ -85,7 +86,8 @@ func (g *Game) Update() error {
 						canCapture = true
 					}
 				}
-				if canCapture {
+        validPos := ValidPositions(movingPiece, heldPiece) 
+				if canCapture && slices.Contains(validPos, clickGridPos) {
           whiteMove = !whiteMove
 					SetPieceAtTo(clickGridPos, GetPieceAt(heldPiece))
 					SetPieceAtTo(heldPiece, 0)

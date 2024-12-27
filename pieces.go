@@ -53,5 +53,30 @@ func LoadTexture() {
 
 	texture = img
 	pieceSize = texture.Bounds().Dx() / 6
+}
 
+func ValidPositions(piece int, from [2]int) (valid [][2]int) {
+  switch int(math.Abs(float64(piece))) {
+
+  //Pawn
+  case 6:
+    if piece > 0 {
+      t := from
+      t[1]--
+      valid = append(valid, t)
+      if from[1] == 6 {
+        t[1]--
+        valid = append(valid, t)
+      }
+    } else {
+      t := from
+      t[1]++
+      valid = append(valid, t)
+      if from[1] == 1 {
+        t[1]++
+        valid = append(valid, t)
+      }
+    }
+  }
+  return
 }
