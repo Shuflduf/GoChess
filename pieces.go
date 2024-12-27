@@ -15,7 +15,6 @@ import (
 type Piece struct {
 	pieceType int
 	pos       [2]int
-	symbol    rune
 }
 
 //go:embed assets/pieces_atlas_big.png
@@ -23,7 +22,6 @@ var textureData []byte
 var nullPiece = Piece{
   0,
   [2]int{-1, -1},
-  ' ',
 }
 
 var texture *ebiten.Image
@@ -56,28 +54,38 @@ func init() {
 	pieceSize = texture.Bounds().Dx() / 6
 }
 
-func ValidPositions(piece int, from [2]int) (valid [][2]int) {
-	switch int(math.Abs(float64(piece))) {
+func (p *Piece) ValidPositions() (valid [][2]int) {
+	switch int(math.Abs(float64(p.pieceType))) {
 
 	//Pawn
 	case 6:
-		if piece > 0 {
-			t := from
+		if p.pieceType > 0 {
+			t := p.pos
 			t[1]--
 			valid = append(valid, t)
-			if from[1] == 6 {
+			if p.pos[1] == 6 {
 				t[1]--
 				valid = append(valid, t)
 			}
 		} else {
-			t := from
+			t := p.pos
 			t[1]++
 			valid = append(valid, t)
-			if from[1] == 1 {
+			if p.pos[1] == 1 {
 				t[1]++
 				valid = append(valid, t)
 			}
 		}
 	}
 	return
+}
+
+func (p *Piece) IsTurn() bool {
+  return (p.pieceType > 0 && whiteMove) || (p.pieceType < 0 && !whiteMove)
+}
+
+func (p *Piece) MovedTo(pos [2]int) Piece {
+  new := *p
+  new.pos = pos
+  return new
 }

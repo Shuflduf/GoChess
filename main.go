@@ -32,8 +32,8 @@ func (g *Game) Update() error {
 		clickGridPos := GetMouseGridPos()
 		if clickGridPos != [2]int{-1, -1} {
 			targetPiece := GetPieceAt(clickGridPos)
-			if targetPiece != 0 {
-				if (targetPiece > 0 && whiteMove) || (targetPiece < 0 && !whiteMove) {
+			if targetPiece.pieceType != 0 {
+				if targetPiece.IsTurn() {
 					heldPiece = clickGridPos
 				}
 			}
@@ -47,24 +47,25 @@ func (g *Game) Update() error {
 			if clickGridPos != [2]int{-1, -1} {
 				targetPiece := GetPieceAt(clickGridPos)
 				movingPiece := GetPieceAt(heldPiece)
-				var canCapture = targetPiece == 0
+				var canCapture = targetPiece == nullPiece
         if movingPiece == targetPiece {
           canCapture = false
-        } else if movingPiece > 0 {
-					if targetPiece < 0 {
+        } else if movingPiece.pieceType > 0 {
+					if targetPiece.pieceType < 0 {
 						canCapture = true
 					}
 				} else {
-					if targetPiece > 0 {
+					if targetPiece.pieceType > 0 {
 						canCapture = true
 					}
 				}
-        validPos := ValidPositions(movingPiece, heldPiece) 
+        validPos := movingPiece.ValidPositions()
 				if canCapture && slices.Contains(validPos, clickGridPos) {
           whiteMove = !whiteMove
-					SetPieceAtTo(clickGridPos, GetPieceAt(heldPiece))
-					SetPieceAtTo(heldPiece, 0)
-					if int(math.Abs(float64(targetPiece))) == 1 {
+					SetPieceAtTo(movingPiece.MovedTo(clickGridPos))
+          SetPieceAtTo(Piece{ 0, heldPiece })
+          // if king captured, reset
+					if int(math.Abs(float64(targetPiece.pieceType))) == 1 {
 						SetupBoard()
 					}
 				}
@@ -109,7 +110,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			float64(mousePosX)-(float64(gridSize)/2.0),
 			float64(MousePosY)-(float64(gridSize)/2.0),
 		)
-		screen.DrawImage(GetPieceFromIndex(GetPieceAt(heldPiece)), &updatedOptions)
+		screen.DrawImage(GetPieceFromIndex(GetPieceAt(heldPiece).pieceType), &updatedOptions)
 	}
 }
 

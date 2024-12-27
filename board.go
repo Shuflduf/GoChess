@@ -58,12 +58,16 @@ func SetupBoard() {
 	}
 }
 
-func GetPieceAt(pos [2]int) int {
-	return currentState[pos[1]][pos[0]]
+func GetPieceAt(pos [2]int) Piece {
+  return Piece{
+    currentState[pos[1]][pos[0]],
+    pos,
+  }
 }
 
-func SetPieceAtTo(pos [2]int, to int) {
-	currentState[pos[1]][pos[0]] = to
+func SetPieceAtTo(p Piece) {
+  pos := p.pos
+	currentState[pos[1]][pos[0]] = p.pieceType
 }
 
 func GetMouseGridPos() [2]int {
