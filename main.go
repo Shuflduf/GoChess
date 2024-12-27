@@ -5,9 +5,6 @@ import (
 	"log"
 	"math"
 	"slices"
-	"strconv"
-	"strings"
-	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
@@ -26,30 +23,6 @@ var gridSize int
 var currentState [8][8]int     // currentState[y][x]
 var heldPiece = [2]int{-1, -1} // heldPiece{x, y}
 var whiteMove = true
-
-func SetupBoard() {
-  whiteMove = true
-	parts := strings.Split(startingFEN, "/")
-	for i, row := range parts {
-		var j = 0
-		for _, char := range row {
-			if char >= '1' && char <= '8' {
-				empty, _ := strconv.Atoi(string(char))
-				for k := 0; k < empty; k++ {
-					currentState[i][j] = 0
-					j++
-				}
-			} else {
-				sign := !unicode.IsUpper(char)
-				currentState[i][j] = pieceMap[rune(unicode.ToLower(char))]
-				if sign {
-					currentState[i][j] *= -1
-				}
-				j++
-			}
-		}
-	}
-}
 
 func (g *Game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
@@ -102,45 +75,13 @@ func (g *Game) Update() error {
 	return nil
 }
 
-func GetPieceAt(pos [2]int) int {
-	return currentState[pos[1]][pos[0]]
-}
-
-func SetPieceAtTo(pos [2]int, to int) {
-	currentState[pos[1]][pos[0]] = to
-}
-
-func GetMouseGridPos() [2]int {
-	mousePosX, mousePosY := ebiten.CursorPosition()
-	mousePos := [2]int{
-		int(math.Floor(float64((mousePosX - margins) / gridSize))),
-		int(math.Floor(float64((mousePosY - margins) / gridSize))),
-	}
-	if mousePos[0] >= 0 && mousePos[0] < 8 && mousePos[1] >= 0 && mousePos[1] < 8 {
-		return mousePos
-	}
-	return [2]int{-1, -1}
-}
-
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{70, 70, 70, 255})
   opt := UIImageOptions()
   screen.DrawImage(UIImage(), &opt)
 
-	// board
-	for x := 0; x < 8; x++ {
-		for y := 0; y < 8; y++ {
-			rect := ebiten.NewImage(gridSize, gridSize)
-			drawOptions := ebiten.DrawImageOptions{}
-			drawOptions.GeoM.Translate(float64(x*gridSize+margins), float64(y*gridSize+margins))
-			if (x+y)%2 == 0 {
-				rect.Fill(brightColor)
-			} else {
-				rect.Fill(darkColor)
-			}
-			screen.DrawImage(rect, &drawOptions)
-		}
-	}
+  opt = BoardImageOptions()
+  screen.DrawImage(BoardImage(), &opt)
 
 	// pieces
 	drawOptions := ebiten.DrawImageOptions{}
@@ -182,8 +123,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	ebiten.SetWindowSize(640, 480)
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
-	ebiten.SetWindowTitle("Hello, World!")
-	LoadTexture()
+	ebiten.SetWindowTitle("GoChess")
 	SetupBoard()
 
 	if err := ebiten.RunGame(&Game{}); err != nil {

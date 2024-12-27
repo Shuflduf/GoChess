@@ -7,7 +7,6 @@ import (
 	_ "image/png"
 	"log"
 	"math"
-	"unicode"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
@@ -21,6 +20,11 @@ type Piece struct {
 
 //go:embed assets/pieces_atlas_big.png
 var textureData []byte
+var nullPiece = Piece{
+  0,
+  [2]int{-1, -1},
+  ' ',
+}
 
 var texture *ebiten.Image
 var pieceSize int
@@ -33,15 +37,6 @@ var pieceMap = map[rune]int{
 	'p': 6,
 }
 
-func GetPieceFromFen(r rune) *ebiten.Image {
-	index := pieceMap[unicode.ToLower(r)]
-	sign := unicode.IsLower(r)
-	if sign {
-		index *= -1
-	}
-	return GetPieceFromIndex(index)
-}
-
 func GetPieceFromIndex(i int) *ebiten.Image {
 	absI := int(math.Abs(float64(i)))
 	cropRect := image.Rect((absI-1)*pieceSize, 0, absI*pieceSize, pieceSize)
@@ -51,7 +46,7 @@ func GetPieceFromIndex(i int) *ebiten.Image {
 	return texture.SubImage(cropRect).(*ebiten.Image)
 }
 
-func LoadTexture() {
+func init() {
 	img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(textureData))
 	if err != nil {
 		log.Fatal(err)
