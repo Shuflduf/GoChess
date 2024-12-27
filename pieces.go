@@ -218,8 +218,7 @@ func (p *Piece) ValidPositions(filterChecks bool) (valid [][2]int) {
 	}
 
 	if filterChecks {
-		// check for checks
-		realValid := valid
+		var realValid [][2]int
 		for _, pos := range valid {
 			if p.WouldCauseCheck(pos) {
 				continue
@@ -236,27 +235,23 @@ func (p *Piece) WouldCauseCheck(pos [2]int) bool {
 	currentStateBackup := currentState
 	currentState[p.pos[1]][p.pos[0]] = 0
 	currentState[pos[1]][pos[0]] = p.pieceType
-  log.Println("Checking:")
-  log.Println(currentState)
-
-	for y, row := range currentState {
-		for x, piece := range row {
-			if piece == 0 {
-				continue
-			}
-			if piece > 0 == (p.pieceType > 0) {
-				continue
-			}
-			// targetPiece := GetPieceAt([2]int{x, y})
-			// targetPositions := targetPiece.ValidPositions(false)
-			// if slices.Contains(targetPositions, kingPos) {
-      if currentState[y][x] == (p.GetSign() * 1) {
-				log.Println("Check")
-				currentState = currentStateBackup
-				return true
-			}
-		}
-	}
+  
+  for y, row := range currentState {
+    for x, pieceType := range row {
+      if pieceType == 0 {
+        continue
+      }
+      piece := Piece{pieceType, [2]int{x, y}}
+      if piece.pieceType > 0 != (p.pieceType > 0) {
+        for _, checkPos := range piece.ValidPositions(false) {
+          if currentState[checkPos[1]][checkPos[0]] == (p.GetSign() * 1) {
+            currentState = currentStateBackup
+            return true
+          }
+        }
+      }
+    }
+  }
 
 	currentState = currentStateBackup
 	return false
