@@ -37,8 +37,8 @@ func (g *Game) Update() error {
 			if targetPiece.pieceType != 0 {
 				if targetPiece.IsTurn() {
 					heldPiecePos = clickGridPos
-          heldPiece := GetPieceAt(heldPiecePos)
-          validPositions = heldPiece.ValidPositions()
+					heldPiece := GetPieceAt(heldPiecePos)
+					validPositions = heldPiece.ValidPositions(true)
 				}
 			}
 		}
@@ -75,7 +75,7 @@ func (g *Game) Update() error {
 				}
 			}
 			heldPiecePos = [2]int{-1, -1}
-      validPositions = [][2]int{}
+			validPositions = [][2]int{}
 		}
 	}
 	return nil

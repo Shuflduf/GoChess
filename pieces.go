@@ -54,7 +54,24 @@ func init() {
 	pieceSize = texture.Bounds().Dx() / 6
 }
 
-func (p *Piece) ValidPositions() (valid [][2]int) {
+func (p *Piece) IsTurn() bool {
+	return (p.pieceType > 0 && whiteMove) || (p.pieceType < 0 && !whiteMove)
+}
+
+func (p *Piece) MovedTo(pos [2]int) Piece {
+	new := *p
+	new.pos = pos
+	return new
+}
+
+func (p *Piece) GetSign() int {
+	if p.pieceType == 0 {
+		return 0
+	}
+	return int(math.Abs(float64(p.pieceType))) / p.pieceType
+}
+
+func (p *Piece) ValidPositions(filterChecks bool) (valid [][2]int) {
 	switch int(math.Abs(float64(p.pieceType))) {
 
 	//King
@@ -199,15 +216,48 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 			}
 		}
 	}
+
+	if filterChecks {
+		// check for checks
+		realValid := valid
+		for _, pos := range valid {
+			if p.WouldCauseCheck(pos) {
+				continue
+			}
+			realValid = append(realValid, pos)
+		}
+		valid = realValid
+	}
+
 	return
 }
 
-func (p *Piece) IsTurn() bool {
-	return (p.pieceType > 0 && whiteMove) || (p.pieceType < 0 && !whiteMove)
-}
+func (p *Piece) WouldCauseCheck(pos [2]int) bool {
+	currentStateBackup := currentState
+	currentState[p.pos[1]][p.pos[0]] = 0
+	currentState[pos[1]][pos[0]] = p.pieceType
+  log.Println("Checking:")
+  log.Println(currentState)
 
-func (p *Piece) MovedTo(pos [2]int) Piece {
-	new := *p
-	new.pos = pos
-	return new
+	for y, row := range currentState {
+		for x, piece := range row {
+			if piece == 0 {
+				continue
+			}
+			if piece > 0 == (p.pieceType > 0) {
+				continue
+			}
+			// targetPiece := GetPieceAt([2]int{x, y})
+			// targetPositions := targetPiece.ValidPositions(false)
+			// if slices.Contains(targetPositions, kingPos) {
+      if currentState[y][x] == (p.GetSign() * 1) {
+				log.Println("Check")
+				currentState = currentStateBackup
+				return true
+			}
+		}
+	}
+
+	currentState = currentStateBackup
+	return false
 }
