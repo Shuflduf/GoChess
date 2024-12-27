@@ -57,39 +57,96 @@ func init() {
 func (p *Piece) ValidPositions() (valid [][2]int) {
 	switch int(math.Abs(float64(p.pieceType))) {
 
+	//King
+	case 1:
+		for i := -1; i < 2; i++ {
+			for j := -1; j < 2; j++ {
+				if i == 0 && j == 0 {
+					continue
+				}
+				if p.pos[0]+i >= 0 && p.pos[0]+i < 8 && p.pos[1]+j >= 0 && p.pos[1]+j < 8 {
+					valid = append(valid, [2]int{p.pos[0] + i, p.pos[1] + j})
+				}
+			}
+		}
+
+	//Queen
+	case 2:
+		for i := -1; i < 2; i++ {
+			for j := -1; j < 2; j++ {
+				if i == 0 && j == 0 {
+					continue
+				}
+				for k := 1; k < 8; k++ {
+					if p.pos[0]+i*k >= 0 && p.pos[0]+i*k < 8 && p.pos[1]+j*k >= 0 && p.pos[1]+j*k < 8 {
+						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
+						if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType != 0 {
+							break
+						}
+					} else {
+						break
+					}
+				}
+			}
+		}
+
+	//Bishop
+	case 3:
+		for i := -1; i < 2; i++ {
+			for j := -1; j < 2; j++ {
+				if i == 0 && j == 0 {
+					continue
+				}
+				for k := 1; k < 8; k++ {
+					if p.pos[0]+i*k >= 0 && p.pos[0]+i*k < 8 && p.pos[1]+j*k >= 0 && p.pos[1]+j*k < 8 {
+						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
+						if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType != 0 {
+							break
+						}
+					} else {
+						break
+					}
+				}
+			}
+		}
+
 	//Pawn
 	case 6:
 		if p.pieceType < 0 {
-      if p.pos[0] > 0 {
-        if GetPieceAt([2]int{p.pos[0]-1, p.pos[1]+1}).pieceType > 0 {
-          valid = append(valid, [2]int{p.pos[0] - 1, p.pos[1] + 1})
-        }
-      }
-      if p.pos[0] < 7 {
-        if GetPieceAt([2]int{p.pos[0]+1, p.pos[1]+1}).pieceType > 0 {
-          valid = append(valid, [2]int{p.pos[0] + 1, p.pos[1] + 1})
-        }
-      }
-      if p.pos[1] == 1 {
-        valid = append(valid, [2]int{p.pos[0], p.pos[1] + 2})
-      }
-      valid = append(valid, [2]int{p.pos[0], p.pos[1] + 1})
-    } else {
-      if p.pos[0] > 0 {
-        if GetPieceAt([2]int{p.pos[0]-1, p.pos[1]-1}).pieceType < 0 {
-          valid = append(valid, [2]int{p.pos[0] - 1, p.pos[1] - 1})
-        }
-      }
-      if p.pos[0] < 7 {
-        if GetPieceAt([2]int{p.pos[0]+1, p.pos[1]-1}).pieceType < 0 {
-          valid = append(valid, [2]int{p.pos[0] + 1, p.pos[1] - 1})
-        }
-      }
-      if p.pos[1] == 6 {
-        valid = append(valid, [2]int{p.pos[0], p.pos[1] - 2})
-      }
-      valid = append(valid, [2]int{p.pos[0], p.pos[1] - 1})
-    }
+			if p.pos[0] > 0 {
+				if GetPieceAt([2]int{p.pos[0] - 1, p.pos[1] + 1}).pieceType > 0 {
+					valid = append(valid, [2]int{p.pos[0] - 1, p.pos[1] + 1})
+				}
+			}
+			if p.pos[0] < 7 {
+				if GetPieceAt([2]int{p.pos[0] + 1, p.pos[1] + 1}).pieceType > 0 {
+					valid = append(valid, [2]int{p.pos[0] + 1, p.pos[1] + 1})
+				}
+			}
+			if p.pos[1] == 1 {
+				valid = append(valid, [2]int{p.pos[0], p.pos[1] + 2})
+			}
+			if GetPieceAt([2]int{p.pos[0], p.pos[1] + 1}).pieceType == 0 {
+				valid = append(valid, [2]int{p.pos[0], p.pos[1] + 1})
+			}
+		} else {
+			if p.pos[0] > 0 {
+				if GetPieceAt([2]int{p.pos[0] - 1, p.pos[1] - 1}).pieceType < 0 {
+					valid = append(valid, [2]int{p.pos[0] - 1, p.pos[1] - 1})
+				}
+			}
+			if p.pos[0] < 7 {
+				if GetPieceAt([2]int{p.pos[0] + 1, p.pos[1] - 1}).pieceType < 0 {
+					valid = append(valid, [2]int{p.pos[0] + 1, p.pos[1] - 1})
+				}
+			}
+			if p.pos[1] == 6 {
+				valid = append(valid, [2]int{p.pos[0], p.pos[1] - 2})
+			}
+			if GetPieceAt([2]int{p.pos[0], p.pos[1] - 1}).pieceType == 0 {
+				valid = append(valid, [2]int{p.pos[0], p.pos[1] - 1})
+			}
+		}
 	}
 	return
 }
