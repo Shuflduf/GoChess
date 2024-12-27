@@ -21,7 +21,7 @@ var screenHeight int
 var screenWidth int
 var gridSize int
 var currentState [8][8]int     // currentState[y][x]
-var heldPiece = [2]int{-1, -1} // heldPiece{x, y}
+var heldPiecePos = [2]int{-1, -1} // heldPiece{x, y}
 var whiteMove = true
 
 func (g *Game) Update() error {
@@ -34,20 +34,20 @@ func (g *Game) Update() error {
 			targetPiece := GetPieceAt(clickGridPos)
 			if targetPiece.pieceType != 0 {
 				if targetPiece.IsTurn() {
-					heldPiece = clickGridPos
+					heldPiecePos = clickGridPos
 				}
 			}
 		}
 	}
 
 	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
-		if heldPiece != [2]int{-1, -1} {
+		if heldPiecePos != [2]int{-1, -1} {
 			clickGridPos := GetMouseGridPos()
 
 			if clickGridPos != [2]int{-1, -1} {
 				targetPiece := GetPieceAt(clickGridPos)
-				movingPiece := GetPieceAt(heldPiece)
-				var canCapture = targetPiece == nullPiece
+				movingPiece := GetPieceAt(heldPiecePos)
+				var canCapture = targetPiece.pieceType == 0
         if movingPiece == targetPiece {
           canCapture = false
         } else if movingPiece.pieceType > 0 {
@@ -62,15 +62,16 @@ func (g *Game) Update() error {
         validPos := movingPiece.ValidPositions()
 				if canCapture && slices.Contains(validPos, clickGridPos) {
           whiteMove = !whiteMove
-					SetPieceAtTo(movingPiece.MovedTo(clickGridPos))
-          SetPieceAtTo(Piece{ 0, heldPiece })
+          heldPiece := GetPieceAt(heldPiecePos)
+					SetPieceAtTo(heldPiece.MovedTo(clickGridPos))
+          SetPieceAtTo(Piece{ 0, heldPiecePos })
           // if king captured, reset
 					if int(math.Abs(float64(targetPiece.pieceType))) == 1 {
 						SetupBoard()
 					}
 				}
 			}
-			heldPiece = [2]int{-1, -1}
+			heldPiecePos = [2]int{-1, -1}
 		}
 	}
 	return nil
@@ -91,7 +92,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for y, row := range currentState {
 		for x, val := range row {
 			updatedOptions := drawOptions
-			if [2]int{x, y} == heldPiece {
+			if [2]int{x, y} == heldPiecePos {
 				continue
 			} else {
 				updatedOptions.GeoM.Translate(
@@ -102,7 +103,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			screen.DrawImage(GetPieceFromIndex(val), &updatedOptions)
 		}
 	}
-	if heldPiece != [2]int{-1, -1} {
+	if heldPiecePos != [2]int{-1, -1} {
 
 		updatedOptions := drawOptions
 		mousePosX, MousePosY := ebiten.CursorPosition()
@@ -110,7 +111,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			float64(mousePosX)-(float64(gridSize)/2.0),
 			float64(MousePosY)-(float64(gridSize)/2.0),
 		)
-		screen.DrawImage(GetPieceFromIndex(GetPieceAt(heldPiece).pieceType), &updatedOptions)
+		screen.DrawImage(GetPieceFromIndex(GetPieceAt(heldPiecePos).pieceType), &updatedOptions)
 	}
 }
 
