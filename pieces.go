@@ -174,7 +174,7 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 					valid = append(valid, [2]int{p.pos[0] + 1, p.pos[1] + 1})
 				}
 			}
-			if p.pos[1] == 1 {
+			if p.pos[1] == 1 && GetPieceAt([2]int{p.pos[0], p.pos[1] + 1}).pieceType == 0 && GetPieceAt([2]int{p.pos[0], p.pos[1] + 2}).pieceType == 0 {
 				valid = append(valid, [2]int{p.pos[0], p.pos[1] + 2})
 			}
 			if GetPieceAt([2]int{p.pos[0], p.pos[1] + 1}).pieceType == 0 {
@@ -191,7 +191,7 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 					valid = append(valid, [2]int{p.pos[0] + 1, p.pos[1] - 1})
 				}
 			}
-			if p.pos[1] == 6 {
+			if p.pos[1] == 6 && GetPieceAt([2]int{p.pos[0], p.pos[1] - 1}).pieceType == 0 && GetPieceAt([2]int{p.pos[0], p.pos[1] - 2}).pieceType == 0 {
 				valid = append(valid, [2]int{p.pos[0], p.pos[1] - 2})
 			}
 			if GetPieceAt([2]int{p.pos[0], p.pos[1] - 1}).pieceType == 0 {
