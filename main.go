@@ -3,6 +3,7 @@ package main
 import (
 	"image/color"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 	"unicode"
@@ -19,7 +20,8 @@ const startingFEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 var darkColor = color.RGBA{149, 68, 35, 255}
 var brightColor = color.RGBA{220, 192, 144, 255}
 var gridSize = (720 - (margins * 2)) / 8
-var currentState [8][8]int // currentState[y][x]
+var currentState [8][8]int     // currentState[y][x]
+var heldPiece = [2]int{-1, -1} // heldPiece{x, y}
 
 func SetupBoard() {
 	parts := strings.Split(startingFEN, "/")
@@ -46,10 +48,54 @@ func SetupBoard() {
 }
 
 func (g *Game) Update() error {
-  if inpututil.IsKeyJustPressed(ebiten.KeyF) {
-    ebiten.SetFullscreen(!ebiten.IsFullscreen())
-  }
+	if inpututil.IsKeyJustPressed(ebiten.KeyF) {
+		ebiten.SetFullscreen(!ebiten.IsFullscreen())
+	}
+	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		clickGridPos := GetMouseGridPos()
+		if clickGridPos != [2]int{-1, -1} {
+			if GetPieceAt(clickGridPos) != 0 {
+				heldPiece = clickGridPos
+			}
+			log.Println(clickGridPos)
+		}
+	}
+
+	if inpututil.IsMouseButtonJustReleased(ebiten.MouseButtonLeft) {
+		if heldPiece != [2]int{-1, -1} {
+			clickGridPos := GetMouseGridPos()
+
+			if clickGridPos != [2]int{-1, -1} {
+        // TODO make capturing and stuff
+				if GetPieceAt(clickGridPos) == 0 {
+					SetPieceAtTo(clickGridPos, GetPieceAt(heldPiece))
+					SetPieceAtTo(heldPiece, 0)
+				}
+			}
+			heldPiece = [2]int{-1, -1}
+		}
+	}
 	return nil
+}
+
+func GetPieceAt(pos [2]int) int {
+	return currentState[pos[1]][pos[0]]
+}
+
+func SetPieceAtTo(pos [2]int, to int) {
+	currentState[pos[1]][pos[0]] = to
+}
+
+func GetMouseGridPos() [2]int {
+	mousePosX, mousePosY := ebiten.CursorPosition()
+	mousePos := [2]int{
+		int(math.Floor(float64((mousePosX - margins) / gridSize))),
+		int(math.Floor(float64((mousePosY - margins) / gridSize))),
+	}
+	if mousePos[0] >= 0 && mousePos[0] < 8 && mousePos[1] >= 0 && mousePos[1] < 8 {
+		return mousePos
+	}
+	return [2]int{-1, -1}
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -87,9 +133,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-  screenWidth = 1920
-  screenHeight = 1080
-  gridSize = (screenHeight - (margins * 2)) / 8
+	screenWidth = 1920
+	screenHeight = 1080
+	gridSize = (screenHeight - (margins * 2)) / 8
 	return
 }
 
