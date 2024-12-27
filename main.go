@@ -66,8 +66,20 @@ func (g *Game) Update() error {
 			clickGridPos := GetMouseGridPos()
 
 			if clickGridPos != [2]int{-1, -1} {
-        // TODO make capturing and stuff
-				if GetPieceAt(clickGridPos) == 0 {
+				// TODO make capturing and stuff
+				targetPiece := GetPieceAt(clickGridPos)
+				movingPiece := GetPieceAt(heldPiece)
+				var canCapture = targetPiece == 0
+				if movingPiece > 0 {
+					if targetPiece < 0 {
+						canCapture = true
+					}
+				} else {
+					if targetPiece > 0 {
+						canCapture = true
+					}
+				}
+				if canCapture {
 					SetPieceAtTo(clickGridPos, GetPieceAt(heldPiece))
 					SetPieceAtTo(heldPiece, 0)
 				}
@@ -123,12 +135,31 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for y, row := range currentState {
 		for x, val := range row {
 			updatedOptions := drawOptions
-			updatedOptions.GeoM.Translate(
-				margins+float64(gridSize*x),
-				margins+float64(gridSize*y),
-			)
+			if [2]int{x, y} == heldPiece {
+				continue
+				// mousePosX, MousePosY := ebiten.CursorPosition()
+				// updatedOptions.GeoM.Translate(
+				// 	float64(mousePosX) - (float64(gridSize) / 2.0),
+				// 	float64(MousePosY) - (float64(gridSize) / 2.0),
+				// )
+			} else {
+				updatedOptions.GeoM.Translate(
+					margins+float64(gridSize*x),
+					margins+float64(gridSize*y),
+				)
+			}
 			screen.DrawImage(GetPieceFromIndex(val), &updatedOptions)
 		}
+	}
+	if heldPiece != [2]int{-1, -1} {
+
+		updatedOptions := drawOptions
+		mousePosX, MousePosY := ebiten.CursorPosition()
+		updatedOptions.GeoM.Translate(
+			float64(mousePosX)-(float64(gridSize)/2.0),
+			float64(MousePosY)-(float64(gridSize)/2.0),
+		)
+		screen.DrawImage(GetPieceFromIndex(GetPieceAt(heldPiece)), &updatedOptions)
 	}
 }
 
