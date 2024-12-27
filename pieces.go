@@ -110,6 +110,42 @@ func (p *Piece) ValidPositions() (valid [][2]int) {
 			}
 		}
 
+	//Knight
+	case 4:
+		for i := -2; i < 3; i++ {
+			for j := -2; j < 3; j++ {
+				if i == 0 || j == 0 || i == j || i == -j {
+					continue
+				}
+				if p.pos[0]+i >= 0 && p.pos[0]+i < 8 && p.pos[1]+j >= 0 && p.pos[1]+j < 8 {
+					valid = append(valid, [2]int{p.pos[0] + i, p.pos[1] + j})
+				}
+			}
+		}
+
+	//Rook
+	case 5:
+		for i := -1; i < 2; i++ {
+			for j := -1; j < 2; j++ {
+				if i == 0 && j == 0 {
+					continue
+				}
+				for k := 1; k < 8; k++ {
+					if i != 0 && j != 0 {
+						break
+					}
+					if p.pos[0]+i*k >= 0 && p.pos[0]+i*k < 8 && p.pos[1]+j*k >= 0 && p.pos[1]+j*k < 8 {
+						valid = append(valid, [2]int{p.pos[0] + i*k, p.pos[1] + j*k})
+						if GetPieceAt([2]int{p.pos[0] + i*k, p.pos[1] + j*k}).pieceType != 0 {
+							break
+						}
+					} else {
+						break
+					}
+				}
+			}
+		}
+
 	//Pawn
 	case 6:
 		if p.pieceType < 0 {
